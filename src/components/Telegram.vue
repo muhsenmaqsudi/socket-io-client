@@ -481,6 +481,7 @@
               <button
                 type="submit"
                 class="p-1 focus:outline-none focus:shadow-none hover:text-blue-500"
+                @click="clickButton"
               >
                 <svg
                   class="w-6 h-6 fill-current"
@@ -502,6 +503,7 @@
               style="border-radius: 25px"
               placeholder="Message..."
               autocomplete="off"
+              v-model="messageBody"
             />
           </div>
         </div>
@@ -703,3 +705,24 @@
     </nav>
   </div>
 </template>
+
+<script lang="ts">
+import Vue from "vue";
+export default Vue.extend({
+  data() {
+    return {
+      messageBody: "",
+    };
+  },
+  sockets: {
+    msgToClient(data) {
+      console.log(data);
+    },
+  },
+  methods: {
+    clickButton() {
+      this.$socket.emit("msgToWss", this.messageBody);
+    },
+  },
+});
+</script>
