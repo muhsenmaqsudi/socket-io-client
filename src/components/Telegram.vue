@@ -504,9 +504,11 @@
               placeholder="Message..."
               autocomplete="off"
               v-model="messageBody"
+              @keypress="isTyping"
             />
           </div>
         </div>
+        <span class="m-5" v-if="this.typing">Muhsen is typing...</span>
       </div>
     </div>
 
@@ -712,16 +714,41 @@ export default Vue.extend({
   data() {
     return {
       messageBody: "",
+      typing: false,
+      timeout: 0,
     };
   },
   sockets: {
+    connectedToWss(data) {
+      console.log(data);
+    },
     msgToClient(data) {
+      console.log(data);
+    },
+    userIsTypeingToClient(data) {
+      console.log(data);
+    },
+    userIsNoLongerTypingToClient(data) {
       console.log(data);
     },
   },
   methods: {
     clickButton() {
       this.$socket.emit("msgToWss", this.messageBody);
+    },
+    isTyping() {
+      if (this.typing == false) {
+        this.typing = true;
+        this.$socket.emit("userIsTypingToWss", true);
+        this.timeout = setTimeout(this.timeoutFunction, 2000);
+      } else {
+        clearTimeout(this.timeout);
+        this.timeout = setTimeout(this.timeoutFunction, 2000);
+      }
+    },
+    timeoutFunction() {
+      this.typing = false;
+      this.$socket.emit("userIsNoLongerTyping");
     },
   },
 });
